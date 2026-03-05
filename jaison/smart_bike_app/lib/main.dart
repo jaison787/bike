@@ -15,8 +15,8 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 // =====================================================
 // CONFIG - Change this to your Django server URL
 // =====================================================
-const String kServerBaseUrl = 'http://7fqnrtr5-8000.inc1.devtunnels.ms';
-const String kWebSocketUrl = 'ws://7fqnrtr5-8000.inc1.devtunnels.ms/ws/bike/';
+const String kServerBaseUrl = 'https://unidling-kirsten-suprasegmental.ngrok-free.dev';
+const String kWebSocketUrl = 'wss://unidling-kirsten-suprasegmental.ngrok-free.dev/ws/bike/';
 const String kBikeId = 'BIKE_001';
 
 void main() {
@@ -352,7 +352,10 @@ class _MainNavigationState extends State<MainNavigation> {
     try {
       await http.post(
         Uri.parse('$kServerBaseUrl/api/update_config/'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true',
+        },
         body: jsonEncode({
           'bike_id': kBikeId,
           'emergency_number': savedContactNumber,
@@ -369,7 +372,10 @@ class _MainNavigationState extends State<MainNavigation> {
     try {
       await http.post(
         Uri.parse('$kServerBaseUrl/api/cancel_emergency/'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true',
+        },
         body: jsonEncode({'bike_id': kBikeId}),
       );
     } catch (e) {
@@ -381,6 +387,7 @@ class _MainNavigationState extends State<MainNavigation> {
     try {
       final response = await http.get(
         Uri.parse('$kServerBaseUrl/api/latest_status/?bike_id=$kBikeId'),
+        headers: {'ngrok-skip-browser-warning': 'true'},
       );
       if (response.statusCode == 200) {
         return jsonDecode(response.body);
@@ -395,6 +402,7 @@ class _MainNavigationState extends State<MainNavigation> {
     try {
       final response = await http.get(
         Uri.parse('$kServerBaseUrl/api/accident_history/?bike_id=$kBikeId'),
+        headers: {'ngrok-skip-browser-warning': 'true'},
       );
       if (response.statusCode == 200) {
         return jsonDecode(response.body);

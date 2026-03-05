@@ -1,0 +1,115 @@
+
+--- 2026-03-05 17:28:45.774384+00:00 ---
+Data: {'bike_id': 'BIKE_001', 'lat': 10.8505, 'lng': 76.2711, 'is_crashed': False, 'silent_mode': False, 'emergency_number': '+919789639636', 'vibration': 0, 'fsr': 0, 'impact_force': 150.0, 'tilt_angle': 2.0}
+Headers: {'Content-Length': '184', 'Content-Type': 'application/json', 'Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'User-Agent': 'Arduino/2.2.0', 'Ngrok-Skip-Browser-Warning': 'true', 'X-Forwarded-For': '27.59.212.233', 'X-Forwarded-Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'X-Forwarded-Proto': 'http', 'Accept-Encoding': 'gzip'}
+
+--- 2026-03-05 17:29:42.466057+00:00 ---
+Data: {'bike_id': 'BIKE_001', 'lat': 10.8505, 'lng': 76.2711, 'is_crashed': False, 'silent_mode': False, 'emergency_number': '+919789639636', 'vibration': 0, 'fsr': 0, 'impact_force': 150.0, 'tilt_angle': 2.0}
+Headers: {'Content-Length': '184', 'Content-Type': 'application/json', 'Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'User-Agent': 'Arduino/2.2.0', 'Ngrok-Skip-Browser-Warning': 'true', 'X-Forwarded-For': '27.59.212.233', 'X-Forwarded-Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'X-Forwarded-Proto': 'http', 'Accept-Encoding': 'gzip'}
+
+--- 2026-03-05 17:30:19.672250+00:00 ---
+Data: {'bike_id': 'BIKE_001', 'lat': 10.8505, 'lng': 76.2711, 'is_crashed': False, 'silent_mode': False, 'emergency_number': '+919789639636', 'vibration': 0, 'fsr': 0, 'impact_force': 150.0, 'tilt_angle': 2.0}
+Headers: {'Content-Length': '184', 'Content-Type': 'application/json', 'Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'User-Agent': 'Arduino/2.2.0', 'Ngrok-Skip-Browser-Warning': 'true', 'X-Forwarded-For': '27.59.212.233', 'X-Forwarded-Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'X-Forwarded-Proto': 'http', 'Accept-Encoding': 'gzip'}
+
+--- 2026-03-05 17:30:59.079989+00:00 ---
+Data: {'bike_id': 'BIKE_001', 'lat': 10.8505, 'lng': 76.2711, 'is_crashed': False, 'silent_mode': False, 'emergency_number': '+919789639636', 'vibration': 0, 'fsr': 0, 'impact_force': 150.0, 'tilt_angle': 2.0}
+Headers: {'Content-Length': '184', 'Content-Type': 'application/json', 'Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'User-Agent': 'Arduino/2.2.0', 'Ngrok-Skip-Browser-Warning': 'true', 'X-Forwarded-For': '27.59.212.233', 'X-Forwarded-Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'X-Forwarded-Proto': 'http', 'Accept-Encoding': 'gzip'}
+
+--- 2026-03-05 17:32:03.712064+00:00 ---
+Data: {'bike_id': 'BIKE_001', 'lat': 10.8505, 'lng': 76.2711, 'is_crashed': False, 'silent_mode': False, 'emergency_number': '+919789639636', 'vibration': 0, 'fsr': 0, 'impact_force': 150.0, 'tilt_angle': 2.0}
+Headers: {'Content-Length': '184', 'Content-Type': 'application/json', 'Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'User-Agent': 'Arduino/2.2.0', 'Ngrok-Skip-Browser-Warning': 'true', 'X-Forwarded-For': '27.59.212.233', 'X-Forwarded-Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'X-Forwarded-Proto': 'http', 'Accept-Encoding': 'gzip'}
+
+--- 2026-03-05 17:33:00.510352+00:00 ---
+Data: {'bike_id': 'BIKE_001', 'lat': 10.8505, 'lng': 76.2711, 'is_crashed': False, 'silent_mode': False, 'emergency_number': '+919789639636', 'vibration': 0, 'fsr': 0, 'impact_force': 150.0, 'tilt_angle': 2.0}
+Headers: {'Content-Length': '184', 'Content-Type': 'application/json', 'Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'User-Agent': 'Arduino/2.2.0', 'Ngrok-Skip-Browser-Warning': 'true', 'X-Forwarded-For': '27.59.212.233', 'X-Forwarded-Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'X-Forwarded-Proto': 'http', 'Accept-Encoding': 'gzip'}
+Body: {"bike_id": "BIKE_001", "lat": 10.8505, "lng": 76.2711, "is_crashed": false, "silent_mode": false, "emergency_number": "+919789639636", "vibration": 0, "fsr": 0, "impact_force": 150.0, "tilt_angle": 2.0}
+
+--- 2026-03-05 17:33:36.716967+00:00 ---
+Data: {'bike_id': 'BIKE_001', 'lat': 10.8505, 'lng': 76.2711, 'is_crashed': False, 'silent_mode': False, 'emergency_number': '+919789639636', 'vibration': 0, 'fsr': 0, 'impact_force': 150.0, 'tilt_angle': 2.0}
+Headers: {'Content-Length': '184', 'Content-Type': 'application/json', 'Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'User-Agent': 'Arduino/2.2.0', 'Ngrok-Skip-Browser-Warning': 'true', 'X-Forwarded-For': '27.59.212.233', 'X-Forwarded-Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'X-Forwarded-Proto': 'http', 'Accept-Encoding': 'gzip'}
+Body: {"bike_id": "BIKE_001", "lat": 10.8505, "lng": 76.2711, "is_crashed": false, "silent_mode": false, "emergency_number": "+919789639636", "vibration": 0, "fsr": 0, "impact_force": 150.0, "tilt_angle": 2.0}
+
+--- 2026-03-05 17:34:12.607442+00:00 ---
+Data: {'bike_id': 'BIKE_001', 'lat': 10.8505, 'lng': 76.2711, 'is_crashed': False, 'silent_mode': False, 'emergency_number': '+919789639636', 'vibration': 0, 'fsr': 0, 'impact_force': 150.0, 'tilt_angle': 2.0}
+Headers: {'Content-Length': '184', 'Content-Type': 'application/json', 'Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'User-Agent': 'Arduino/2.2.0', 'Ngrok-Skip-Browser-Warning': 'true', 'X-Forwarded-For': '27.59.212.233', 'X-Forwarded-Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'X-Forwarded-Proto': 'http', 'Accept-Encoding': 'gzip'}
+Body: {"bike_id": "BIKE_001", "lat": 10.8505, "lng": 76.2711, "is_crashed": false, "silent_mode": false, "emergency_number": "+919789639636", "vibration": 0, "fsr": 0, "impact_force": 150.0, "tilt_angle": 2.0}
+
+--- 2026-03-05 17:34:50.483996+00:00 ---
+Data: {'bike_id': 'BIKE_001', 'lat': 10.8505, 'lng': 76.2711, 'is_crashed': False, 'silent_mode': False, 'emergency_number': '+919789639636', 'vibration': 0, 'fsr': 0, 'impact_force': 150.0, 'tilt_angle': 2.0}
+Headers: {'Content-Length': '184', 'Content-Type': 'application/json', 'Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'User-Agent': 'Arduino/2.2.0', 'Ngrok-Skip-Browser-Warning': 'true', 'X-Forwarded-For': '27.59.212.233', 'X-Forwarded-Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'X-Forwarded-Proto': 'http', 'Accept-Encoding': 'gzip'}
+Body: {"bike_id": "BIKE_001", "lat": 10.8505, "lng": 76.2711, "is_crashed": false, "silent_mode": false, "emergency_number": "+919789639636", "vibration": 0, "fsr": 0, "impact_force": 150.0, "tilt_angle": 2.0}
+
+--- 2026-03-05 17:35:26.353694+00:00 ---
+Data: {'bike_id': 'BIKE_001', 'lat': 10.8505, 'lng': 76.2711, 'is_crashed': False, 'silent_mode': False, 'emergency_number': '+919789639636', 'vibration': 0, 'fsr': 0, 'impact_force': 150.0, 'tilt_angle': 2.0}
+Headers: {'Content-Length': '184', 'Content-Type': 'application/json', 'Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'User-Agent': 'Arduino/2.2.0', 'Ngrok-Skip-Browser-Warning': 'true', 'X-Forwarded-For': '27.59.212.233', 'X-Forwarded-Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'X-Forwarded-Proto': 'http', 'Accept-Encoding': 'gzip'}
+Body: {"bike_id": "BIKE_001", "lat": 10.8505, "lng": 76.2711, "is_crashed": false, "silent_mode": false, "emergency_number": "+919789639636", "vibration": 0, "fsr": 0, "impact_force": 150.0, "tilt_angle": 2.0}
+
+--- 2026-03-05 17:36:02.741829+00:00 ---
+Data: {'bike_id': 'BIKE_001', 'lat': 10.8505, 'lng': 76.2711, 'is_crashed': False, 'silent_mode': False, 'emergency_number': '+919789639636', 'vibration': 0, 'fsr': 0, 'impact_force': 150.0, 'tilt_angle': 2.0}
+Headers: {'Content-Length': '184', 'Content-Type': 'application/json', 'Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'User-Agent': 'Arduino/2.2.0', 'Ngrok-Skip-Browser-Warning': 'true', 'X-Forwarded-For': '27.59.212.233', 'X-Forwarded-Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'X-Forwarded-Proto': 'http', 'Accept-Encoding': 'gzip'}
+Body: {"bike_id": "BIKE_001", "lat": 10.8505, "lng": 76.2711, "is_crashed": false, "silent_mode": false, "emergency_number": "+919789639636", "vibration": 0, "fsr": 0, "impact_force": 150.0, "tilt_angle": 2.0}
+
+--- 2026-03-05 17:36:38.069005+00:00 ---
+Data: {'bike_id': 'BIKE_001', 'lat': 10.8505, 'lng': 76.2711, 'is_crashed': False, 'silent_mode': False, 'emergency_number': '+919789639636', 'vibration': 0, 'fsr': 0, 'impact_force': 150.0, 'tilt_angle': 2.0}
+Headers: {'Content-Length': '184', 'Content-Type': 'application/json', 'Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'User-Agent': 'Arduino/2.2.0', 'Ngrok-Skip-Browser-Warning': 'true', 'X-Forwarded-For': '27.59.212.233', 'X-Forwarded-Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'X-Forwarded-Proto': 'http', 'Accept-Encoding': 'gzip'}
+Body: {"bike_id": "BIKE_001", "lat": 10.8505, "lng": 76.2711, "is_crashed": false, "silent_mode": false, "emergency_number": "+919789639636", "vibration": 0, "fsr": 0, "impact_force": 150.0, "tilt_angle": 2.0}
+
+--- 2026-03-05 17:37:15.233520+00:00 ---
+Data: {'bike_id': 'BIKE_001', 'lat': 10.8505, 'lng': 76.2711, 'is_crashed': False, 'silent_mode': False, 'emergency_number': '+919789639636', 'vibration': 0, 'fsr': 0, 'impact_force': 150.0, 'tilt_angle': 2.0}
+Headers: {'Content-Length': '184', 'Content-Type': 'application/json', 'Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'User-Agent': 'Arduino/2.2.0', 'Ngrok-Skip-Browser-Warning': 'true', 'X-Forwarded-For': '27.59.212.233', 'X-Forwarded-Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'X-Forwarded-Proto': 'http', 'Accept-Encoding': 'gzip'}
+Body: {"bike_id": "BIKE_001", "lat": 10.8505, "lng": 76.2711, "is_crashed": false, "silent_mode": false, "emergency_number": "+919789639636", "vibration": 0, "fsr": 0, "impact_force": 150.0, "tilt_angle": 2.0}
+
+--- 2026-03-05 17:38:41.636002+00:00 ---
+Data: {'bike_id': 'BIKE_001', 'lat': 10.688236, 'lng': 76.059433, 'is_crashed': False, 'silent_mode': False, 'emergency_number': '+919789639636', 'vibration': 0, 'fsr': 0, 'impact_force': 16059.18, 'tilt_angle': 2.76}
+Headers: {'Content-Length': '192', 'Content-Type': 'application/json', 'Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'User-Agent': 'Arduino/2.2.0', 'Ngrok-Skip-Browser-Warning': 'true', 'X-Forwarded-For': '106.216.140.234', 'X-Forwarded-Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'X-Forwarded-Proto': 'http', 'Accept-Encoding': 'gzip'}
+Body: {"bike_id": "BIKE_001", "lat": 10.688236, "lng": 76.059433, "is_crashed": false, "silent_mode": false, "emergency_number": "+919789639636", "vibration": 0, "fsr": 0, "impact_force": 16059.18, "tilt_angle": 2.76}
+
+--- 2026-03-05 17:38:51.313100+00:00 ---
+Data: {'bike_id': 'BIKE_001', 'lat': 10.688233, 'lng': 76.059555, 'is_crashed': False, 'silent_mode': False, 'emergency_number': '+919789639636', 'vibration': 0, 'fsr': 0, 'impact_force': 16040.63, 'tilt_angle': 2.44}
+Headers: {'Content-Length': '192', 'Content-Type': 'application/json', 'Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'User-Agent': 'Arduino/2.2.0', 'Ngrok-Skip-Browser-Warning': 'true', 'X-Forwarded-For': '106.216.140.234', 'X-Forwarded-Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'X-Forwarded-Proto': 'http', 'Accept-Encoding': 'gzip'}
+Body: {"bike_id": "BIKE_001", "lat": 10.688233, "lng": 76.059555, "is_crashed": false, "silent_mode": false, "emergency_number": "+919789639636", "vibration": 0, "fsr": 0, "impact_force": 16040.63, "tilt_angle": 2.44}
+
+--- 2026-03-05 17:39:01.387759+00:00 ---
+Data: {'bike_id': 'BIKE_001', 'lat': 10.688233, 'lng': 76.059555, 'is_crashed': False, 'silent_mode': False, 'emergency_number': '+919789639636', 'vibration': 0, 'fsr': 0, 'impact_force': 16263.01, 'tilt_angle': 2.59}
+Headers: {'Content-Length': '192', 'Content-Type': 'application/json', 'Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'User-Agent': 'Arduino/2.2.0', 'Ngrok-Skip-Browser-Warning': 'true', 'X-Forwarded-For': '106.216.140.234', 'X-Forwarded-Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'X-Forwarded-Proto': 'http', 'Accept-Encoding': 'gzip'}
+Body: {"bike_id": "BIKE_001", "lat": 10.688233, "lng": 76.059555, "is_crashed": false, "silent_mode": false, "emergency_number": "+919789639636", "vibration": 0, "fsr": 0, "impact_force": 16263.01, "tilt_angle": 2.59}
+
+--- 2026-03-05 17:39:11.928958+00:00 ---
+Data: {'bike_id': 'BIKE_001', 'lat': 10.688233, 'lng': 76.059555, 'is_crashed': False, 'silent_mode': False, 'emergency_number': '+919789639636', 'vibration': 0, 'fsr': 0, 'impact_force': 16158.83, 'tilt_angle': 2.48}
+Headers: {'Content-Length': '192', 'Content-Type': 'application/json', 'Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'User-Agent': 'Arduino/2.2.0', 'Ngrok-Skip-Browser-Warning': 'true', 'X-Forwarded-For': '106.216.140.234', 'X-Forwarded-Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'X-Forwarded-Proto': 'http', 'Accept-Encoding': 'gzip'}
+Body: {"bike_id": "BIKE_001", "lat": 10.688233, "lng": 76.059555, "is_crashed": false, "silent_mode": false, "emergency_number": "+919789639636", "vibration": 0, "fsr": 0, "impact_force": 16158.83, "tilt_angle": 2.48}
+
+--- 2026-03-05 17:39:21.317718+00:00 ---
+Data: {'bike_id': 'BIKE_001', 'lat': 10.688233, 'lng': 76.059555, 'is_crashed': False, 'silent_mode': False, 'emergency_number': '+919789639636', 'vibration': 0, 'fsr': 0, 'impact_force': 16189.8, 'tilt_angle': 2.72}
+Headers: {'Content-Length': '192', 'Content-Type': 'application/json', 'Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'User-Agent': 'Arduino/2.2.0', 'Ngrok-Skip-Browser-Warning': 'true', 'X-Forwarded-For': '106.216.140.234', 'X-Forwarded-Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'X-Forwarded-Proto': 'http', 'Accept-Encoding': 'gzip'}
+Body: {"bike_id": "BIKE_001", "lat": 10.688233, "lng": 76.059555, "is_crashed": false, "silent_mode": false, "emergency_number": "+919789639636", "vibration": 0, "fsr": 0, "impact_force": 16189.8, "tilt_angle": 2.72}
+
+--- 2026-03-05 17:39:32.022787+00:00 ---
+Data: {'bike_id': 'BIKE_001', 'lat': 10.688233, 'lng': 76.059555, 'is_crashed': False, 'silent_mode': False, 'emergency_number': '+919789639636', 'vibration': 0, 'fsr': 0, 'impact_force': 16117.03, 'tilt_angle': 2.73}
+Headers: {'Content-Length': '192', 'Content-Type': 'application/json', 'Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'User-Agent': 'Arduino/2.2.0', 'Ngrok-Skip-Browser-Warning': 'true', 'X-Forwarded-For': '106.216.140.234', 'X-Forwarded-Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'X-Forwarded-Proto': 'http', 'Accept-Encoding': 'gzip'}
+Body: {"bike_id": "BIKE_001", "lat": 10.688233, "lng": 76.059555, "is_crashed": false, "silent_mode": false, "emergency_number": "+919789639636", "vibration": 0, "fsr": 0, "impact_force": 16117.03, "tilt_angle": 2.73}
+
+--- 2026-03-05 17:39:41.245946+00:00 ---
+Data: {'bike_id': 'BIKE_001', 'lat': 10.688157, 'lng': 76.05954, 'is_crashed': False, 'silent_mode': False, 'emergency_number': '+919789639636', 'vibration': 0, 'fsr': 0, 'impact_force': 16038.18, 'tilt_angle': 2.93}
+Headers: {'Content-Length': '192', 'Content-Type': 'application/json', 'Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'User-Agent': 'Arduino/2.2.0', 'Ngrok-Skip-Browser-Warning': 'true', 'X-Forwarded-For': '106.216.140.234', 'X-Forwarded-Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'X-Forwarded-Proto': 'http', 'Accept-Encoding': 'gzip'}
+Body: {"bike_id": "BIKE_001", "lat": 10.688157, "lng": 76.05954, "is_crashed": false, "silent_mode": false, "emergency_number": "+919789639636", "vibration": 0, "fsr": 0, "impact_force": 16038.18, "tilt_angle": 2.93}
+
+--- 2026-03-05 17:39:51.658950+00:00 ---
+Data: {'bike_id': 'BIKE_001', 'lat': 10.688185, 'lng': 76.059601, 'is_crashed': False, 'silent_mode': False, 'emergency_number': '+919789639636', 'vibration': 0, 'fsr': 0, 'impact_force': 16092.95, 'tilt_angle': 2.45}
+Headers: {'Content-Length': '192', 'Content-Type': 'application/json', 'Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'User-Agent': 'Arduino/2.2.0', 'Ngrok-Skip-Browser-Warning': 'true', 'X-Forwarded-For': '106.216.140.234', 'X-Forwarded-Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'X-Forwarded-Proto': 'http', 'Accept-Encoding': 'gzip'}
+Body: {"bike_id": "BIKE_001", "lat": 10.688185, "lng": 76.059601, "is_crashed": false, "silent_mode": false, "emergency_number": "+919789639636", "vibration": 0, "fsr": 0, "impact_force": 16092.95, "tilt_angle": 2.45}
+
+--- 2026-03-05 17:40:01.624762+00:00 ---
+Data: {'bike_id': 'BIKE_001', 'lat': 10.688183, 'lng': 76.059624, 'is_crashed': False, 'silent_mode': False, 'emergency_number': '+919789639636', 'vibration': 0, 'fsr': 0, 'impact_force': 16075.62, 'tilt_angle': 2.72}
+Headers: {'Content-Length': '192', 'Content-Type': 'application/json', 'Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'User-Agent': 'Arduino/2.2.0', 'Ngrok-Skip-Browser-Warning': 'true', 'X-Forwarded-For': '106.216.140.234', 'X-Forwarded-Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'X-Forwarded-Proto': 'http', 'Accept-Encoding': 'gzip'}
+Body: {"bike_id": "BIKE_001", "lat": 10.688183, "lng": 76.059624, "is_crashed": false, "silent_mode": false, "emergency_number": "+919789639636", "vibration": 0, "fsr": 0, "impact_force": 16075.62, "tilt_angle": 2.72}
+
+--- 2026-03-05 17:40:11.365026+00:00 ---
+Data: {'bike_id': 'BIKE_001', 'lat': 10.688186, 'lng': 76.059677, 'is_crashed': False, 'silent_mode': False, 'emergency_number': '+919789639636', 'vibration': 0, 'fsr': 0, 'impact_force': 16359.84, 'tilt_angle': 2.94}
+Headers: {'Content-Length': '192', 'Content-Type': 'application/json', 'Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'User-Agent': 'Arduino/2.2.0', 'Ngrok-Skip-Browser-Warning': 'true', 'X-Forwarded-For': '106.216.140.234', 'X-Forwarded-Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'X-Forwarded-Proto': 'http', 'Accept-Encoding': 'gzip'}
+Body: {"bike_id": "BIKE_001", "lat": 10.688186, "lng": 76.059677, "is_crashed": false, "silent_mode": false, "emergency_number": "+919789639636", "vibration": 0, "fsr": 0, "impact_force": 16359.84, "tilt_angle": 2.94}
+
+--- 2026-03-05 17:40:21.607481+00:00 ---
+Data: {'bike_id': 'BIKE_001', 'lat': 10.688198, 'lng': 76.059692, 'is_crashed': False, 'silent_mode': False, 'emergency_number': '+919789639636', 'vibration': 0, 'fsr': 0, 'impact_force': 16167.82, 'tilt_angle': 2.84}
+Headers: {'Content-Length': '192', 'Content-Type': 'application/json', 'Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'User-Agent': 'Arduino/2.2.0', 'Ngrok-Skip-Browser-Warning': 'true', 'X-Forwarded-For': '106.216.140.234', 'X-Forwarded-Host': 'unidling-kirsten-suprasegmental.ngrok-free.dev', 'X-Forwarded-Proto': 'http', 'Accept-Encoding': 'gzip'}
+Body: {"bike_id": "BIKE_001", "lat": 10.688198, "lng": 76.059692, "is_crashed": false, "silent_mode": false, "emergency_number": "+919789639636", "vibration": 0, "fsr": 0, "impact_force": 16167.82, "tilt_angle": 2.84}

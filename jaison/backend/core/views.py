@@ -1,3 +1,5 @@
+import json
+
 from django.utils import timezone
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -8,10 +10,14 @@ from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 
 
+from rest_framework.permissions import AllowAny
+# ...
 class UpdateBikeStatus(APIView):
+    authentication_classes = []
+    permission_classes = []
+    
     """
     ESP32 posts sensor data + GPS here every 10 seconds.
-    Also used when a crash is detected (is_crashed=true).
     """
     def post(self, request):
         bike_id = request.data.get('bike_id')
@@ -91,6 +97,9 @@ class UpdateBikeStatus(APIView):
 
 
 class HeartbeatView(APIView):
+    authentication_classes = []
+    permission_classes = []
+    
     """
     ESP32 sends heartbeat every 5 minutes.
     Returns current config so ESP32 can sync any remote changes.
@@ -116,6 +125,9 @@ class HeartbeatView(APIView):
 
 
 class GetConfigView(APIView):
+    authentication_classes = []
+    permission_classes = []
+    
     """
     ESP32 fetches config on boot (GET request).
     """
@@ -134,6 +146,9 @@ class GetConfigView(APIView):
 
 
 class UpdateConfigView(APIView):
+    authentication_classes = []
+    permission_classes = []
+    
     """
     Flutter app updates bike config (emergency number, silent mode).
     This syncs to Django so ESP32 can pick it up on next heartbeat.
@@ -165,6 +180,9 @@ class UpdateConfigView(APIView):
 
 
 class CancelEmergencyView(APIView):
+    authentication_classes = []
+    permission_classes = []
+    
     """
     When rider presses 'I'm Okay' - cancel the active emergency.
     """
@@ -209,6 +227,9 @@ class CancelEmergencyView(APIView):
 
 
 class GetLatestStatusView(APIView):
+    authentication_classes = []
+    permission_classes = []
+    
     """
     Flutter app fetches the latest status for the bike (for remote tracking).
     """
@@ -242,6 +263,9 @@ class GetLatestStatusView(APIView):
 
 
 class AccidentHistoryView(APIView):
+    authentication_classes = []
+    permission_classes = []
+    
     """
     Get accident history for a bike.
     """
@@ -250,7 +274,7 @@ class AccidentHistoryView(APIView):
 
         try:
             bike = Bike.objects.get(bike_id=bike_id)
-            accidents = AccidentLog.objects.filter(bike=bike)[:50]
+            accidents = AccidentLog.objects.filter(bike=bike).order_by('-timestamp')[:50]
             serializer = AccidentLogSerializer(accidents, many=True)
             return Response(serializer.data)
 
@@ -259,6 +283,9 @@ class AccidentHistoryView(APIView):
 
 
 class RegisterBikeView(APIView):
+    authentication_classes = []
+    permission_classes = []
+    
     """
     Register a new bike from the Flutter app.
     """

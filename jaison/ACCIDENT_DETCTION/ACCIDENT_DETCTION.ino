@@ -2,17 +2,7 @@
  * ============================================================
  * SMART BIKE CRASH DETECTION & SAFETY SYSTEM (ESP32)
  * ============================================================
- * FINAL WORKING VERSION - Matches Django Backend + Flutter App
- * 
- * Hardware: ESP32 + MPU6050 + NEO-6M GPS + SIM800L + Buzzer + Button
- * Communication: Classic Bluetooth (for flutter_bluetooth_serial) + GPRS/HTTP
- * Backend: Django REST API
- * 
- * SYSTEM FLOW:
- * 1. Boot → Load saved config from Preferences → Start BT & GPRS
- * 2. Local Loop (Bluetooth): App connects, exchanges data in real-time
- * 3. Remote Loop (GPRS): Periodic GPS + status sync to Django
- * 4. Emergency: Crash → 10s countdown → SMS/Call if unresponsive
+ * FINAL WORKING VERSION - Ngrok + HTTP Fixes Applied
  * ============================================================
  */
 
@@ -41,9 +31,10 @@
 #define FSR_PIN     35
 
 // ==================== BACKEND CONFIG ====================
-const char server[]   = "7fqnrtr5-8000.inc1.devtunnels.ms";
-const int  serverPort = 80;
-const char apn[]      = "internet";  // Change to your SIM APN (e.g. "airtelgprs.com")
+// EXACT Ngrok domain (NO http:// and NO trailing slashes here)
+const char server[]   = "unidling-kirsten-suprasegmental.ngrok-free.dev"; 
+const int  serverPort = 80; // MUST BE 80 FOR HTTP
+const char apn[]      = "internet";  // Change to your SIM APN if needed
 const char bike_id[]  = "BIKE_001";
 
 // ==================== OBJECTS ====================
@@ -53,7 +44,7 @@ TinyGPSPlus gps;
 HardwareSerial simSerial(1);
 HardwareSerial gpsSerial(2);
 TinyGsm modem(simSerial);
-TinyGsmClient gprsClient(modem);
+TinyGsmClient gprsClient(modem); // Standard Non-Secure Client!
 Preferences preferences;
 
 // ==================== STATE VARIABLES ====================
@@ -73,7 +64,7 @@ int16_t gx, gy, gz;
 
 unsigned long lastGPRSSync   = 0;
 unsigned long lastHeartbeat  = 0;
-const unsigned long GPRS_SYNC_INTERVAL  = 10000;   // 10 seconds
+const unsigned long GPRS_SYNC_INTERVAL  = 300000;  // 5 minutes
 const unsigned long HEARTBEAT_INTERVAL  = 300000;  // 5 minutes
 
 // ==================== SETUP ====================
@@ -147,12 +138,12 @@ void setup() {
     Serial.println("========================================");
 }
 
+unsigned long lastPrintTime = 0;
+const unsigned long PRINT_INTERVAL = 500; // reporting interval
+
 // ==================== MAIN LOOP ====================
 void loop() {
-    // --- Check Bluetooth commands from Flutter App ---
-    handleBluetoothInput();
-
-    // --- Process GPS data ---
+    // 1. Process GPS data (Non-blocking)
     while (gpsSerial.available()) {
         gps.encode(gpsSerial.read());
     }
@@ -161,13 +152,11 @@ void loop() {
         longitude = gps.location.lng();
     }
 
-    // --- Read Sensors ---
+    // 2. Read Sensors (Instant)
     mpu.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
-
     float impactForce = sqrt((float)ax * ax + (float)ay * ay + (float)az * az);
     float rollAngle   = atan2((float)ay, (float)az) * 180.0 / PI;
     float bikeTilt    = abs(rollAngle);
-
     int vibData = analogRead(VIB_PIN);
     int fsrData = analogRead(FSR_PIN);
 
@@ -175,50 +164,56 @@ void loop() {
     bool isFallen      = (bikeTilt > 60.0);
     bool isCrashImpact = (impactForce > 20000);
 
-    // --- Send sensor data via Bluetooth (every loop ~1s) ---
-    String dataPacket = "{\"vib\":" + String(vibData) +
-                        ",\"fsr\":" + String(fsrData) +
-                        ",\"fall\":" + String(impactForce) +
-                        ",\"tilt\":" + String(bikeTilt) +
-                        ",\"lat\":" + String(latitude, 6) +
-                        ",\"lng\":" + String(longitude, 6) +
-                        ",\"status\":" + String(crashScenario) +
-                        ",\"silent\":" + String(silentMode ? "true" : "false") + "}";
-    SerialBT.println(dataPacket);
-
-    // --- Print to Serial Monitor ---
-    Serial.print("Impact: "); Serial.print(impactForce);
-    Serial.print(" | Tilt: "); Serial.print(bikeTilt);
-    Serial.print(" | Vib: "); Serial.print(vibData);
-    Serial.print(" | FSR: "); Serial.println(fsrData);
-
-    delay(1000);
-
-    // ===== CRASH DETECTION LOGIC =====
+    // 3. CRASH DETECTION (High Priority - Instant response)
     if (!emergencyActive) {
-        // SCENARIO 1: Parked Bike Hit
-        if (fsrData < 1000 && vibData > 1000 && vibData < 4096 && isUpright) {
-            handleMinorAlert(1, vibData, fsrData, impactForce);
-        }
-        // SCENARIO 2: Minor Collision
-        else if (vibData < 1000 && fsrData > 1000 && fsrData < 4096 && isUpright) {
-            handleMinorAlert(2, vibData, fsrData, impactForce);
-        }
-        // SCENARIO 3 & 4: Major Accident (with countdown)
-        else if ((vibData > 4000) && (fsrData) && (isCrashImpact || isFallen)) {
+        if (isCrashImpact || isFallen) {
             handleMajorCrash(vibData, fsrData, impactForce);
         }
+        else if (vibData > 800 && fsrData < 500 && isUpright) {
+            handleMinorAlert(1, vibData, fsrData, impactForce);
+        }
+        else if (vibData > 800 && fsrData > 500 && isUpright) {
+            handleMinorAlert(2, vibData, fsrData, impactForce);
+        }
     }
 
-    // --- Periodic GPRS Sync ---
-    if (millis() - lastGPRSSync > GPRS_SYNC_INTERVAL) {
-        lastGPRSSync = millis();
-        pushStatusToDjango(false);
+    // 4. PERIODIC TASKS (Reporting & Syncing)
+    unsigned long currentMillis = millis();
+
+    // Check Bluetooth commands from Flutter App
+    handleBluetoothInput();
+
+    // reporting task (BT data + Serial)
+    if (currentMillis - lastPrintTime >= PRINT_INTERVAL) {
+        lastPrintTime = currentMillis;
+
+        // Send sensor data via Bluetooth
+        String dataPacket = "{\"vib\":" + String(vibData) +
+                            ",\"fsr\":" + String(fsrData) +
+                            ",\"fall\":" + String(impactForce) +
+                            ",\"tilt\":" + String(bikeTilt) +
+                            ",\"lat\":" + String(latitude, 6) +
+                            ",\"lng\":" + String(longitude, 6) +
+                            ",\"status\":" + String(crashScenario) +
+                            ",\"silent\":" + String(silentMode ? "true" : "false") + "}";
+        SerialBT.println(dataPacket);
+
+        // Print to Serial Monitor
+        Serial.print("Impact: "); Serial.print(impactForce);
+        Serial.print(" | Tilt: "); Serial.print(bikeTilt);
+        Serial.print(" | Vib: "); Serial.print(vibData);
+        Serial.print(" | FSR: "); Serial.println(fsrData);
     }
 
-    // --- Periodic Heartbeat ---
-    if (millis() - lastHeartbeat > HEARTBEAT_INTERVAL) {
-        lastHeartbeat = millis();
+    // GPRS Sync
+    if (currentMillis - lastGPRSSync > GPRS_SYNC_INTERVAL) {
+        lastGPRSSync = currentMillis;
+        pushStatusToDjango(false, vibData, fsrData, impactForce, bikeTilt);
+    }
+
+    // Heartbeat
+    if (currentMillis - lastHeartbeat > HEARTBEAT_INTERVAL) {
+        lastHeartbeat = currentMillis;
         sendHeartbeat();
     }
 }
@@ -287,7 +282,7 @@ void handleMinorAlert(int scenario, int vib, int fsr, float impact) {
     SerialBT.println("{\"status\":" + String(scenario) + "}");
 
     // Push to Django
-    pushStatusToDjango(false);
+    pushStatusToDjango(false, vib, fsr, impact, 0); // Upright scenario
 
     // Send SMS
     if (scenario == 1) {
@@ -315,7 +310,7 @@ void handleMajorCrash(int vib, int fsr, float impact) {
     Serial.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 
     // Push crash notification to Django immediately
-    pushStatusToDjango(true);
+    pushStatusToDjango(true, vib, fsr, impact, 90.0); // Assume tilted heavily
 
     // --- THE COUNTDOWN LOOP (10 seconds) ---
     while (countLoop < COUNTDOWN_MAX) {
@@ -407,7 +402,7 @@ void handleMajorCrash(int vib, int fsr, float impact) {
     makeCall(emergencyNumber);
 
     // 3. Log accident in Django
-    pushStatusToDjango(true);
+    pushStatusToDjango(true, vib, fsr, impact, 90.0);
 
     delay(5000);
     digitalWrite(BUZZER, LOW);
@@ -417,7 +412,7 @@ void handleMajorCrash(int vib, int fsr, float impact) {
 
 // ==================== DJANGO API CALLS ====================
 
-void pushStatusToDjango(bool isCrashed) {
+void pushStatusToDjango(bool isCrashed, int vib, int fsr, float impact, float tilt) {
     if (!modem.isGprsConnected()) {
         Serial.println("[GPRS] Reconnecting...");
         if (!modem.gprsConnect(apn)) {
@@ -426,19 +421,46 @@ void pushStatusToDjango(bool isCrashed) {
         }
     }
 
-    String postData = "{\"bike_id\":\"" + String(bike_id) + "\","
-                      "\"lat\":" + String(latitude, 6) + ","
-                      "\"lng\":" + String(longitude, 6) + ","
-                      "\"is_crashed\":" + String(isCrashed ? "true" : "false") + ","
-                      "\"silent_mode\":" + String(silentMode ? "true" : "false") + ","
-                      "\"emergency_number\":\"" + emergencyNumber + "\"}";
+    // --- Build JSON payload (Numeric values must be bare) ---
+    String postData = "{";
+    postData += "\"bike_id\":\"" + String(bike_id) + "\",";
+    postData += "\"lat\":" + String(latitude, 6) + ",";
+    postData += "\"lng\":" + String(longitude, 6) + ",";
+    postData += "\"is_crashed\":" + String(isCrashed ? "true" : "false") + ",";
+    postData += "\"silent_mode\":" + String(silentMode ? "true" : "false") + ",";
+    postData += "\"emergency_number\":\"" + emergencyNumber + "\",";
+    postData += "\"vibration\":" + String(vib) + ",";
+    postData += "\"fsr\":" + String(fsr) + ",";
+    postData += "\"impact_force\":" + String(impact) + ",";
+    postData += "\"tilt_angle\":" + String(tilt);
+    postData += "}";
+
+    Serial.println("[DEBUG] Body: " + postData);
 
     HttpClient http(gprsClient, server, serverPort);
-    http.post("/api/update_status/", "application/json", postData);
+    http.setHttpResponseTimeout(15000); 
+    
+    Serial.println("[DJANGO] Syncing...");
+    
+    http.beginRequest();
+    http.post("/api/update_status/");
+    
+    // THE NGROK FIXES
+    http.sendHeader("ngrok-skip-browser-warning", "true");
+    http.sendHeader("Content-Type", "application/json");
+    http.sendHeader("Content-Length", postData.length());
+    http.sendHeader("User-Agent", "ESP32-SmartBike");
+    
+    http.endRequest();
+    http.print(postData);
 
     int statusCode = http.responseStatusCode();
-    Serial.print("[DJANGO] Sync status: ");
+    Serial.print("[DJANGO] Sync result: ");
     Serial.println(statusCode);
+    
+    if (statusCode < 0) {
+        Serial.println("[WARN] Connection failed.");
+    }
     http.stop();
 }
 
@@ -450,49 +472,52 @@ void sendHeartbeat() {
     String postData = "{\"bike_id\":\"" + String(bike_id) + "\",\"type\":\"heartbeat\"}";
 
     HttpClient http(gprsClient, server, serverPort);
-    http.post("/api/heartbeat/", "application/json", postData);
+    http.setHttpResponseTimeout(15000);
+    
+    http.beginRequest();
+    http.post("/api/heartbeat/");
+    
+    // THE NGROK FIXES
+    http.sendHeader("ngrok-skip-browser-warning", "true");
+    http.sendHeader("Content-Type", "application/json");
+    http.sendHeader("Content-Length", postData.length());
+    http.sendHeader("User-Agent", "ESP32-SmartBike");
+    
+    http.endRequest();
+    http.print(postData);
 
     int statusCode = http.responseStatusCode();
-    String response = http.responseBody();
     Serial.print("[HEARTBEAT] Status: ");
     Serial.println(statusCode);
 
-    // Parse the response to check for config updates
     if (statusCode == 200) {
-        // Simple JSON parsing for emergency_number
-        int numStart = response.indexOf("emergency_number");
-        if (numStart > 0) {
-            int valStart = response.indexOf("\"", numStart + 18) + 1;
-            int valEnd = response.indexOf("\"", valStart);
-            if (valStart > 0 && valEnd > valStart) {
-                String newNum = response.substring(valStart, valEnd);
+        String response = http.responseBody();
+        
+        // Manual parsing if library is missing
+        if (response.indexOf("emergency_number") > 0) {
+            int start = response.indexOf("emergency_number") + 18;
+            int q1 = response.indexOf("\"", start) + 1;
+            int q2 = response.indexOf("\"", q1);
+            if (q1 > 0 && q2 > q1) {
+                String newNum = response.substring(q1, q2);
                 if (newNum != emergencyNumber && newNum.length() > 5) {
                     emergencyNumber = newNum;
                     preferences.begin("bike", false);
                     preferences.putString("emNum", emergencyNumber);
                     preferences.end();
-                    Serial.print("[SYNC] Emergency number from cloud: ");
-                    Serial.println(emergencyNumber);
+                    Serial.println("[SYNC] Emergency Number updated from Cloud");
                 }
             }
         }
-
-        // Check silent mode
-        if (response.indexOf("\"silent_mode\": true") > 0 || response.indexOf("\"silent_mode\":true") > 0) {
-            if (!silentMode) {
-                silentMode = true;
+        
+        if (response.indexOf("silent_mode") > 0) {
+            bool cloudSilent = (response.indexOf("\"silent_mode\":true") > 0 || response.indexOf("\"silent_mode\": true") > 0);
+            if (cloudSilent != silentMode) {
+                silentMode = cloudSilent;
                 preferences.begin("bike", false);
-                preferences.putBool("silent", true);
+                preferences.putBool("silent", silentMode);
                 preferences.end();
-                Serial.println("[SYNC] Silent mode set to ON from cloud");
-            }
-        } else if (response.indexOf("\"silent_mode\": false") > 0 || response.indexOf("\"silent_mode\":false") > 0) {
-            if (silentMode) {
-                silentMode = false;
-                preferences.begin("bike", false);
-                preferences.putBool("silent", false);
-                preferences.end();
-                Serial.println("[SYNC] Silent mode set to OFF from cloud");
+                Serial.println("[SYNC] Silent Mode updated from Cloud");
             }
         }
     }
@@ -504,7 +529,12 @@ void syncConfigFromDjango() {
 
     HttpClient http(gprsClient, server, serverPort);
     String path = "/api/get_config/?bike_id=" + String(bike_id);
+    
+    // We changed this from http.get(path) to allow the Ngrok header!
+    http.beginRequest();
     http.get(path);
+    http.sendHeader("ngrok-skip-browser-warning", "true");
+    http.endRequest();
 
     int statusCode = http.responseStatusCode();
     if (statusCode == 200) {
@@ -541,7 +571,16 @@ void pushCancelToDjango() {
     String postData = "{\"bike_id\":\"" + String(bike_id) + "\",\"action\":\"cancel_emergency\"}";
 
     HttpClient http(gprsClient, server, serverPort);
-    http.post("/api/cancel_emergency/", "application/json", postData);
+    
+    // We changed this from shorthand http.post() to allow the Ngrok header!
+    http.beginRequest();
+    http.post("/api/cancel_emergency/");
+    http.sendHeader("ngrok-skip-browser-warning", "true");
+    http.sendHeader("Content-Type", "application/json");
+    http.sendHeader("Content-Length", postData.length());
+    http.endRequest();
+    http.print(postData);
+    
     Serial.print("[DJANGO] Cancel status: ");
     Serial.println(http.responseStatusCode());
     http.stop();
