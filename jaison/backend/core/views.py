@@ -1,4 +1,5 @@
 import json
+import math
 
 from django.utils import timezone
 from rest_framework.views import APIView
@@ -8,6 +9,23 @@ from .models import Bike, BikeStatus, AccidentLog
 from .serializers import BikeSerializer, BikeStatusSerializer, AccidentLogSerializer
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
+
+
+# Static database of hospitals (can be moved to a database model later)
+HOSPITALS = [
+    {"name": "City General Hospital", "lat": 10.0125, "lng": 76.3350, "ambulance_num": "+918888888888"},
+    {"name": "Metro Medical Center", "lat": 10.0210, "lng": 76.3500, "ambulance_num": "+917777777777"},
+    {"name": "Highway Trauma Care", "lat": 10.0500, "lng": 76.3000, "ambulance_num": "+916666666666"}
+]
+
+def calculate_haversine(lat1, lon1, lat2, lon2):
+    """Calculates the great-circle distance between two points on Earth in kilometers."""
+    R = 6371.0 # Earth radius in kilometers
+    dlat = math.radians(float(lat2) - float(lat1))
+    dlon = math.radians(float(lon2) - float(lon1))
+    a = math.sin(dlat / 2)**2 + math.cos(math.radians(float(lat1))) * math.cos(math.radians(float(lat2))) * math.sin(dlon / 2)**2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    return R * c
 
 
 from rest_framework.permissions import AllowAny
@@ -20,6 +38,8 @@ class UpdateBikeStatus(APIView):
     ESP32 posts sensor data + GPS here every 10 seconds.
     """
     def post(self, request):
+        print("INCOMING REQUEST:", request.body)
+        print("METHOD:", request.method)
         bike_id = request.data.get('bike_id')
         lat = request.data.get('lat', 0)
         lng = request.data.get('lng', 0)
@@ -81,7 +101,32 @@ class UpdateBikeStatus(APIView):
             except Exception as e:
                 print(f"WebSocket broadcast error: {e}")
 
-            return Response({"status": "Success"}, status=status.HTTP_201_CREATED)
+            # --- [V3 AMBULANCE DISPATCH LOGIC] ---
+            if crashed:
+                rider_lat = float(lat)
+                rider_lng = float(lng)
+                
+                closest_hospital = None
+                min_distance = float('inf')
+
+                # Iterate through hospitals to find the closest one
+                for hospital in HOSPITALS:
+                    distance = calculate_haversine(rider_lat, rider_lng, hospital["lat"], hospital["lng"])
+                    if distance < min_distance:
+                        min_distance = distance
+                        closest_hospital = hospital
+
+                # Return the closest ambulance number to the ESP32!
+                return Response({
+                    "success": True,
+                    "id": bike_status.id,
+                    "status": "SOS_LOGGED",
+                    "closest_hospital": closest_hospital["name"],
+                    "distance_km": round(min_distance, 2),
+                    "ambulance_number": closest_hospital["ambulance_num"] 
+                }, status=status.HTTP_200_OK)
+
+            return Response({"success": True, "id": bike_status.id}, status=status.HTTP_201_CREATED)
 
         except Bike.DoesNotExist:
             # Auto-create bike if it doesn't exist
@@ -90,10 +135,14 @@ class UpdateBikeStatus(APIView):
                 owner_name="Auto-registered",
                 emergency_number=emergency_number or '+910000000000',
             )
-            BikeStatus.objects.create(
+            bike_status = BikeStatus.objects.create(
                 bike=bike, latitude=lat, longitude=lng, is_crashed=crashed
             )
-            return Response({"status": "Bike auto-registered"}, status=status.HTTP_201_CREATED)
+            return Response({
+                "success": True,
+                "id": bike_status.id,
+                "status": "Bike auto-registered"
+            }, status=status.HTTP_201_CREATED)
 
 
 class HeartbeatView(APIView):

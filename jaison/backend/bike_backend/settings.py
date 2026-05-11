@@ -14,6 +14,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -39,6 +40,10 @@ MIDDLEWARE = [
 
 # CORS - Allow all origins for development
 CORS_ALLOW_ALL_ORIGINS = True
+
+# Security — disable HTTPS forcing so SIM800L HTTP POSTs work
+SECURE_SSL_REDIRECT = False
+SECURE_PROXY_SSL_HEADER = None
 
 ROOT_URLCONF = 'bike_backend.urls'
 
