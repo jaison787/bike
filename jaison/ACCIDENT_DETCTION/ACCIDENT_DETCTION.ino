@@ -53,8 +53,8 @@ const unsigned long VIB_COOLDOWN       = 5000;
 //  VIB_CRASH_TRIGGER_COUNT: 2 ticks = 60ms  vib spike      → Major Crash (fast)
 //  VIB_TRIGGER_COUNT     : 5 ticks = 150ms sustained vib   → Parked Bump / Minor Crash
 const int TILT_TRIGGER_COUNT      = 5;
-const int VIB_CRASH_TRIGGER_COUNT = 5;  // Lower — crash vib is brief but intense
-const int VIB_TRIGGER_COUNT       = 5;  // Higher — parked/minor needs sustained vib
+const int VIB_CRASH_TRIGGER_COUNT = 2;  // Restored to 2 for fast detection
+const int VIB_TRIGGER_COUNT       = 5;
 
 // ─── HARDWARE ────────────────────────────────────────────────
 HardwareSerial  SerialGSM(1);
@@ -99,6 +99,7 @@ bool          isCrashCountdown = false;
 unsigned long crashStartTime   = 0;
 unsigned long lastVibAction    = 0;
 unsigned long lastBTSend       = 0;
+float         peakImpact       = 0; // Tracks highest impact seen during current fall
 
 // ─── DISPATCH LOCK ───────────────────────────────────────────
 volatile bool dispatchRunning = false;
@@ -143,160 +144,160 @@ String getGSMTimestamp() {
 // ============================================================
 //  DIAGNOSTIC — Called once at boot
 // ============================================================
-// void runDiagnostics() {
-//   Serial.println("\n");
-//   Serial.println("╔══════════════════════════════════════╗");
-//   Serial.println("║   SmartBike BOOT DIAGNOSTICS v15.1  ║");
-//   Serial.println("╚══════════════════════════════════════╝\n");
+void runDiagnostics() {
+  Serial.println("\n");
+  Serial.println("╔══════════════════════════════════════╗");
+  Serial.println("║   SmartBike BOOT DIAGNOSTICS v15.1  ║");
+  Serial.println("╚══════════════════════════════════════╝\n");
 
-//   // ── CHECK 1: MPU6050 ─────────────────────────────────────
-//   Serial.println("▶ [1/8] Checking MPU6050...");
-//   Wire.beginTransmission(0x68);
-//   byte err = Wire.endTransmission();
-//   if (err == 0) {
-//     diag.mpuOK = true;
-//     Serial.println("  ✅ MPU6050 found on 0x68");
-//   } else {
-//     Serial.println("  ❌ MPU6050 NOT found! Error: " + String(err));
-//   }
+  // ── CHECK 1: MPU6050 ─────────────────────────────────────
+  Serial.println("▶ [1/8] Checking MPU6050...");
+  Wire.beginTransmission(0x68);
+  byte err = Wire.endTransmission();
+  if (err == 0) {
+    diag.mpuOK = true;
+    Serial.println("  ✅ MPU6050 found on 0x68");
+  } else {
+    Serial.println("  ❌ MPU6050 NOT found! Error: " + String(err));
+  }
 
-//   // ── CHECK 2: GSM ─────────────────────────────────────────
-//   Serial.println("\n▶ [2/8] Checking GSM Module...");
-//   if (sendAT("AT", 2000).indexOf("OK") != -1) {
-//     diag.gsmOK = true;
-//     Serial.println("  ✅ GSM responding");
-//   } else {
-//     Serial.println("  ❌ GSM not responding! Check RX/TX and power (2A needed).");
-//   }
+  // ── CHECK 2: GSM ─────────────────────────────────────────
+  Serial.println("\n▶ [2/8] Checking GSM Module...");
+  if (sendAT("AT", 2000).indexOf("OK") != -1) {
+    diag.gsmOK = true;
+    Serial.println("  ✅ GSM responding");
+  } else {
+    Serial.println("  ❌ GSM not responding! Check RX/TX and power (2A needed).");
+  }
 
-//   // ── CHECK 3: SIM ─────────────────────────────────────────
-//   Serial.println("\n▶ [3/8] Checking SIM Card...");
-//   String simResp = sendAT("AT+CIMI", 2000);
-//   if (simResp.indexOf("ERROR") == -1 && simResp.length() > 5) {
-//     diag.simOK = true;
-//     Serial.println("  ✅ SIM detected. IMSI: " + simResp);
-//   } else {
-//     Serial.println("  ❌ SIM not detected! AT+CPIN?: " + sendAT("AT+CPIN?", 1000));
-//   }
+  // ── CHECK 3: SIM ─────────────────────────────────────────
+  Serial.println("\n▶ [3/8] Checking SIM Card...");
+  String simResp = sendAT("AT+CIMI", 2000);
+  if (simResp.indexOf("ERROR") == -1 && simResp.length() > 5) {
+    diag.simOK = true;
+    Serial.println("  ✅ SIM detected. IMSI: " + simResp);
+  } else {
+    Serial.println("  ❌ SIM not detected! AT+CPIN?: " + sendAT("AT+CPIN?", 1000));
+  }
 
-//   // ── CHECK 4: Network ─────────────────────────────────────
-//   Serial.println("\n▶ [4/8] Checking Network Registration...");
-//   String regResp = sendAT("AT+CREG?", 2000);
-//   if (regResp.indexOf(",1") != -1 || regResp.indexOf(",5") != -1) {
-//     diag.networkOK = true;
-//     Serial.println("  ✅ Registered" + String(regResp.indexOf(",5") != -1 ? " (Roaming)" : " (Home)"));
-//   } else {
-//     Serial.println("  ❌ Not registered. Raw: " + regResp);
-//   }
+  // ── CHECK 4: Network ─────────────────────────────────────
+  Serial.println("\n▶ [4/8] Checking Network Registration...");
+  String regResp = sendAT("AT+CREG?", 2000);
+  if (regResp.indexOf(",1") != -1 || regResp.indexOf(",5") != -1) {
+    diag.networkOK = true;
+    Serial.println("  ✅ Registered" + String(regResp.indexOf(",5") != -1 ? " (Roaming)" : " (Home)"));
+  } else {
+    Serial.println("  ❌ Not registered. Raw: " + regResp);
+  }
 
-//   // ── CHECK 5: Signal ──────────────────────────────────────
-//   Serial.println("\n▶ [5/8] Checking Signal Strength...");
-//   String csqResp = sendAT("AT+CSQ", 1000);
-//   int csqIdx = csqResp.indexOf("+CSQ: ");
-//   if (csqIdx != -1) {
-//     int sig = csqResp.substring(csqIdx + 6).toInt();
-//     diag.signalStrength = sig;
-//     if      (sig == 99) Serial.println("  ⚠️  Unknown signal (99)");
-//     else if (sig < 10)  Serial.println("  ⚠️  Weak: "     + String(sig) + "/31");
-//     else if (sig < 20)  Serial.println("  ✅ Moderate: "  + String(sig) + "/31");
-//     else                Serial.println("  ✅ Good: "      + String(sig) + "/31");
-//   }
+  // ── CHECK 5: Signal ──────────────────────────────────────
+  Serial.println("\n▶ [5/8] Checking Signal Strength...");
+  String csqResp = sendAT("AT+CSQ", 1000);
+  int csqIdx = csqResp.indexOf("+CSQ: ");
+  if (csqIdx != -1) {
+    int sig = csqResp.substring(csqIdx + 6).toInt();
+    diag.signalStrength = sig;
+    if      (sig == 99) Serial.println("  ⚠️  Unknown signal (99)");
+    else if (sig < 10)  Serial.println("  ⚠️  Weak: "     + String(sig) + "/31");
+    else if (sig < 20)  Serial.println("  ✅ Moderate: "  + String(sig) + "/31");
+    else                Serial.println("  ✅ Good: "      + String(sig) + "/31");
+  }
 
-//   // ── CHECK 6: GPRS ────────────────────────────────────────
-//   Serial.println("\n▶ [6/8] Checking GPRS...");
-//   if (sendAT("AT+CGATT?", 2000).indexOf("+CGATT: 1") != -1) {
-//     diag.gprsOK = true;
-//     Serial.println("  ✅ GPRS attached");
-//   } else {
-//     sendAT("AT+CGATT=1", 3000);
-//     if (sendAT("AT+CGATT?", 2000).indexOf("+CGATT: 1") != -1) {
-//       diag.gprsOK = true;
-//       Serial.println("  ✅ GPRS attached after retry");
-//     } else {
-//       Serial.println("  ❌ GPRS failed. Check APN.");
-//     }
-//   }
+  // ── CHECK 6: GPRS ────────────────────────────────────────
+  Serial.println("\n▶ [6/8] Checking GPRS...");
+  if (sendAT("AT+CGATT?", 2000).indexOf("+CGATT: 1") != -1) {
+    diag.gprsOK = true;
+    Serial.println("  ✅ GPRS attached");
+  } else {
+    sendAT("AT+CGATT=1", 3000);
+    if (sendAT("AT+CGATT?", 2000).indexOf("+CGATT: 1") != -1) {
+      diag.gprsOK = true;
+      Serial.println("  ✅ GPRS attached after retry");
+    } else {
+      Serial.println("  ❌ GPRS failed. Check APN.");
+    }
+  }
 
-//   // ── CHECK 7: Bearer + Backend ────────────────────────────
-//   Serial.println("\n▶ [7/8] Checking Bearer & Backend...");
-//   sendAT("AT+SAPBR=0,1", 1000);
-//   delay(500);
-//   sendAT("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\"");
-//   sendAT("AT+SAPBR=3,1,\"APN\",\"" + SIM_APN + "\"");
-//   sendAT("AT+SAPBR=1,1", 10000);
-//   String bStatus = sendAT("AT+SAPBR=2,1", 2000);
-//   if (bStatus.indexOf("+SAPBR: 1,1") != -1 || 
-//       (bStatus.indexOf("+SAPBR") != -1 && bStatus.indexOf(",1,\"") != -1)) {
-//     diag.bearerOK = true;
-//     Serial.println("  ✅ Bearer open.");
-//     sendAT("AT+HTTPINIT");
-//     sendAT("AT+HTTPPARA=\"CID\",1");
-//     sendAT("AT+HTTPPARA=\"URL\",\"" + BACKEND_URL + "\"");
-//     String actionResp = sendAT("AT+HTTPACTION=0", 8000);
-//     delay(2000);
-//     String readResp = sendAT("AT+HTTPREAD", 3000);
-//     sendAT("AT+HTTPTERM");
-//     sendAT("AT+SAPBR=0,1");
-//     if (actionResp.indexOf(",307,") != -1) {
-//       Serial.println("  ❌ 307 REDIRECT — use: ngrok http --scheme=http --domain=... 8000");
-//     } else if (actionResp.indexOf(",200,") != -1 || actionResp.indexOf(",405,") != -1) {
-//       diag.ngrokOK = true;
-//       Serial.println("  ✅ Backend reachable!");
-//     } else {
-//       Serial.println("  ❌ Backend not reachable. Raw: " + actionResp);
-//     }
-//   } else {
-//     Serial.println("  ❌ Bearer failed. APN: " + SIM_APN);
-//     sendAT("AT+SAPBR=0,1");
-//   }
+  // ── CHECK 7: Bearer + Backend ────────────────────────────
+  Serial.println("\n▶ [7/8] Checking Bearer & Backend...");
+  sendAT("AT+SAPBR=0,1", 1000);
+  delay(500);
+  sendAT("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\"");
+  sendAT("AT+SAPBR=3,1,\"APN\",\"" + SIM_APN + "\"");
+  sendAT("AT+SAPBR=1,1", 10000);
+  String bStatus = sendAT("AT+SAPBR=2,1", 2000);
+  if (bStatus.indexOf("+SAPBR: 1,1") != -1 || 
+      (bStatus.indexOf("+SAPBR") != -1 && bStatus.indexOf(",1,\"") != -1)) {
+    diag.bearerOK = true;
+    Serial.println("  ✅ Bearer open.");
+    sendAT("AT+HTTPINIT");
+    sendAT("AT+HTTPPARA=\"CID\",1");
+    sendAT("AT+HTTPPARA=\"URL\",\"" + BACKEND_URL + "\"");
+    String actionResp = sendAT("AT+HTTPACTION=0", 8000);
+    delay(2000);
+    String readResp = sendAT("AT+HTTPREAD", 3000);
+    sendAT("AT+HTTPTERM");
+    sendAT("AT+SAPBR=0,1");
+    if (actionResp.indexOf(",307,") != -1) {
+      Serial.println("  ❌ 307 REDIRECT — use: ngrok http --scheme=http --domain=... 8000");
+    } else if (actionResp.indexOf(",200,") != -1 || actionResp.indexOf(",405,") != -1) {
+      diag.ngrokOK = true;
+      Serial.println("  ✅ Backend reachable!");
+    } else {
+      Serial.println("  ❌ Backend not reachable. Raw: " + actionResp);
+    }
+  } else {
+    Serial.println("  ❌ Bearer failed. APN: " + SIM_APN);
+    sendAT("AT+SAPBR=0,1");
+  }
 
-//   // ── CHECK 8: Bluetooth ───────────────────────────────────
-//   Serial.println("\n▶ [8/8] Checking Bluetooth...");
-//   if (SerialBT.hasClient()) {
-//     diag.bluetoothOK = true;
-//     Serial.println("  ✅ Client connected!");
-//   } else {
-//     Serial.println("  ℹ️  Broadcasting as 'SmartBike_System'");
-//   }
+  // ── CHECK 8: Bluetooth ───────────────────────────────────
+  Serial.println("\n▶ [8/8] Checking Bluetooth...");
+  if (SerialBT.hasClient()) {
+    diag.bluetoothOK = true;
+    Serial.println("  ✅ Client connected!");
+  } else {
+    Serial.println("  ℹ️  Broadcasting as 'SmartBike_System'");
+  }
 
-//   diag.timestamp = getGSMTimestamp();
-//   Serial.println("\n  🕐 GSM Time: " + diag.timestamp);
+  diag.timestamp = getGSMTimestamp();
+  Serial.println("\n  🕐 GSM Time: " + diag.timestamp);
 
-//   Serial.println("\n╔══════════════════════════════════════╗");
-//   Serial.println("║         DIAGNOSTIC SUMMARY           ║");
-//   Serial.println("╠══════════════════════════════════════╣");
-//   Serial.println("║ MPU6050       : " + String(diag.mpuOK     ? "✅ OK  " : "❌ FAIL") + "             ║");
-//   Serial.println("║ GSM Module    : " + String(diag.gsmOK     ? "✅ OK  " : "❌ FAIL") + "             ║");
-//   Serial.println("║ SIM Card      : " + String(diag.simOK     ? "✅ OK  " : "❌ FAIL") + "             ║");
-//   Serial.println("║ Network Reg   : " + String(diag.networkOK ? "✅ OK  " : "❌ FAIL") + "             ║");
-//   Serial.println("║ GPRS          : " + String(diag.gprsOK    ? "✅ OK  " : "❌ FAIL") + "             ║");
-//   Serial.println("║ Bearer        : " + String(diag.bearerOK  ? "✅ OK  " : "❌ FAIL") + "             ║");
-//   Serial.println("║ Backend/ngrok : " + String(diag.ngrokOK   ? "✅ OK  " : "❌ FAIL") + "             ║");
-//   Serial.println("║ Signal        : " + String(diag.signalStrength) + "/31                 ║");
-//   Serial.println("╚══════════════════════════════════════╝");
+  Serial.println("\n╔══════════════════════════════════════╗");
+  Serial.println("║         DIAGNOSTIC SUMMARY           ║");
+  Serial.println("╠══════════════════════════════════════╣");
+  Serial.println("║ MPU6050       : " + String(diag.mpuOK     ? "✅ OK  " : "❌ FAIL") + "             ║");
+  Serial.println("║ GSM Module    : " + String(diag.gsmOK     ? "✅ OK  " : "❌ FAIL") + "             ║");
+  Serial.println("║ SIM Card      : " + String(diag.simOK     ? "✅ OK  " : "❌ FAIL") + "             ║");
+  Serial.println("║ Network Reg   : " + String(diag.networkOK ? "✅ OK  " : "❌ FAIL") + "             ║");
+  Serial.println("║ GPRS          : " + String(diag.gprsOK    ? "✅ OK  " : "❌ FAIL") + "             ║");
+  Serial.println("║ Bearer        : " + String(diag.bearerOK  ? "✅ OK  " : "❌ FAIL") + "             ║");
+  Serial.println("║ Backend/ngrok : " + String(diag.ngrokOK   ? "✅ OK  " : "❌ FAIL") + "             ║");
+  Serial.println("║ Signal        : " + String(diag.signalStrength) + "/31                 ║");
+  Serial.println("╚══════════════════════════════════════╝");
 
-//   bool allOK = diag.gsmOK && diag.simOK && diag.networkOK && diag.gprsOK && diag.mpuOK;
-//   if (allOK) {
-//     Serial.println("\n🟢 SYSTEM READY!");
-//     for (int i = 0; i < 3; i++) {
-//       digitalWrite(BUZZER_PIN, HIGH); delay(100);
-//       digitalWrite(BUZZER_PIN, LOW);  delay(100);
-//     }
-//   } else {
-//     Serial.println("\n🔴 WARNING — Some checks failed.");
-//     digitalWrite(BUZZER_PIN, HIGH); delay(1000);
-//     digitalWrite(BUZZER_PIN, LOW);
-//   }
+  bool allOK = diag.gsmOK && diag.simOK && diag.networkOK && diag.gprsOK && diag.mpuOK;
+  if (allOK) {
+    Serial.println("\n🟢 SYSTEM READY!");
+    for (int i = 0; i < 3; i++) {
+      digitalWrite(BUZZER_PIN, HIGH); delay(100);
+      digitalWrite(BUZZER_PIN, LOW);  delay(100);
+    }
+  } else {
+    Serial.println("\n🔴 WARNING — Some checks failed.");
+    digitalWrite(BUZZER_PIN, HIGH); delay(1000);
+    digitalWrite(BUZZER_PIN, LOW);
+  }
 
-//   SerialBT.println("DIAG|GSM:"  + String(diag.gsmOK)          +
-//                    "|SIM:"      + String(diag.simOK)           +
-//                    "|NET:"      + String(diag.networkOK)        +
-//                    "|GPRS:"     + String(diag.gprsOK)           +
-//                    "|NGROK:"    + String(diag.ngrokOK)          +
-//                    "|SIG:"      + String(diag.signalStrength));
+  SerialBT.println("DIAG|GSM:"  + String(diag.gsmOK)          +
+                   "|SIM:"      + String(diag.simOK)           +
+                   "|NET:"      + String(diag.networkOK)        +
+                   "|GPRS:"     + String(diag.gprsOK)           +
+                   "|NGROK:"    + String(diag.ngrokOK)          +
+                   "|SIG:"      + String(diag.signalStrength));
 
-//   Serial.println("\n[BOOT] Starting main loop...\n");
-// }
+  Serial.println("\n[BOOT] Starting main loop...\n");
+}
 
 // ============================================================
 //  TASK — GPS Reader (Core 0)
@@ -563,11 +564,20 @@ void loop() {
   else
     vibAccumulator = max(vibAccumulator - 1, 0);
 
-  // ── Derived state flags ───────────────────────────────────
-  bool fallen      = (tiltAccumulator  >= TILT_TRIGGER_COUNT);
-  bool highVibCrash= (vibAccumulator   >= VIB_CRASH_TRIGGER_COUNT); // 2 ticks — Major Crash
-  bool highVib     = (vibAccumulator   >= VIB_TRIGGER_COUNT);       // 5 ticks — Parked/Minor
-  bool occupied    = (fsr >= FSR_EMPTY_THRESHOLD);
+  // ── Derived state flags (Debounced) ───────────────────────
+  bool highVibCrash = (vibAccumulator >= VIB_CRASH_TRIGGER_COUNT);
+  bool highVib      = (vibAccumulator >= VIB_TRIGGER_COUNT);
+  bool fallen       = (tiltAccumulator >= TILT_TRIGGER_COUNT);
+  bool occupied     = (fsr >= FSR_EMPTY_THRESHOLD);
+
+  // ── Impact Latching ───────────────────────────────────────
+  // If we are tilting or vibrating, "latch" the highest impact seen.
+  // This ensures a 30,000 impact spike isn't forgotten 150ms later when 'fallen' is true.
+  if (tilt > 30.0 || highVibCrash) {
+    if (impact > peakImpact) peakImpact = impact;
+  } else {
+    peakImpact = impact; // Reset/Follow if bike is stable
+  }
 
   // ── Bluetooth live stream ─────────────────────────────────
   if (millis() - lastBTSend > 1000) {
@@ -627,12 +637,10 @@ void loop() {
   //  SCENARIO DETECTION — v15.1 Safety Logic Matrix
   // ══════════════════════════════════════════════════════════
 
-  // SCENARIO 4: Major Crash — Fallen(5) + Empty Seat + HighVib(2)
-  // Uses VIB_CRASH_TRIGGER_COUNT=2 so vib accumulates before Tip-Over
-  // steals the event. Real crash vib is brief but intense.
   // SCENARIO 4: Major Crash — Fallen + Empty Seat + High Impact + High Vib
-  if (fallen && !occupied && impact > IMPACT_THRESHOLD && highVibCrash && !dispatchRunning) {
-    tiltAccumulator = 0; vibAccumulator = 0;
+  // Uses peakImpact to catch the initial hit that happened before 'fallen' was confirmed.
+  if (fallen && !occupied && peakImpact > IMPACT_THRESHOLD  && !dispatchRunning) {
+    tiltAccumulator = 0; vibAccumulator = 0; peakImpact = 0;
     if (xSemaphoreTake(dataMutex, pdMS_TO_TICKS(50)) == pdTRUE) {
       shared.crashType     = "Major Crash";
       shared.currentStatus = "SOS Countdown";
@@ -642,14 +650,14 @@ void loop() {
     }
     isCrashCountdown = true;
     crashStartTime   = millis();
-    Serial.println("[DETECT] 🚨 MAJOR CRASH — Fallen + High Impact + High Vib");
+    Serial.println("[DETECT] 🚨 MAJOR CRASH — Fallen + High Impact (Latched) + High Vib");
     SerialBT.println("ALERT|Major Crash|SOS Countdown 15s");
   }
 
   // SCENARIO 3: Tip-Over — Fallen + Empty Seat + Low Impact
-  else if (fallen && !occupied && impact < IMPACT_THRESHOLD && !dispatchRunning) {
-    tiltAccumulator = 0; vibAccumulator = 0;
-    if (xSemaphoreTake(dataMutex, pdMS_TO_TICKS(50)) == pdTRUE) {
+  else if (fallen && !occupied && peakImpact < IMPACT_THRESHOLD && !dispatchRunning) {
+    tiltAccumulator = 0; vibAccumulator = 0; peakImpact = 0;
+    if (xSemaphoreTake(dataMutex, pdMS_TO_TICKS(300)) == pdTRUE) {
       shared.crashType     = "Tip-Over";
       shared.currentStatus = "Warning Countdown";
       shared.snapVib = vib; shared.snapFSR = fsr;
